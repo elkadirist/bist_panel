@@ -1,57 +1,17 @@
-mport streamlit as st
-import yfinance as yf
+import streamlit as st
 import pandas as pd
 
-st.title("📊 BIST ROBOT (DEBUG VERSION)")
+st.title("📊 BIST ROBOT (OFFLINE TEST)")
 
-stocks = ["THYAO.IS","ASELS.IS","TUPRS.IS","ASTOR.IS"]
+# INTERNET BAĞIMLI OLMAYAN TEST VERİ
+data = {
+    "Hisse": ["THYAO", "ASELS", "TUPRS", "ASTOR"],
+    "Skor": [75, 55, 30, 85],
+    "Sinyal": ["🟢 AL", "🟡 BEKLE", "🔴 SAT", "🟢 AL"]
+}
 
-def safe_score(df):
-    try:
-        if df is None or df.empty:
-            return None
+df = pd.DataFrame(data)
 
-        close = df["Close"]
+st.dataframe(df)
 
-        if len(close) < 50:
-            return None
-
-        ema20 = close.ewm(span=20).mean()
-        ema50 = close.ewm(span=50).mean()
-
-        score = 0
-
-        if ema20.iloc[-1] > ema50.iloc[-1]:
-            score += 50
-
-        return score
-
-    except Exception as e:
-        return None
-
-
-results = []
-
-for s in stocks:
-    try:
-        df = yf.download(s, period="6mo")
-
-        sc = safe_score(df)
-
-        if sc is None:
-            continue
-
-        signal = "🔴 SAT"
-        if sc > 40:
-            signal = "🟢 AL"
-
-        results.append([s, sc, signal])
-
-    except Exception as e:
-        st.write("Hata:", s, e)
-
-
-if len(results) == 0:
-    st.error("VERİ GELMİYOR → yfinance blok / internet sorunu")
-else:
-    st.dataframe(pd.DataFrame(results, columns=["Hisse","Skor","Sinyal"]))
+st.success("App çalışıyor - Streamlit OK")
