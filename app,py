@@ -1,4 +1,4 @@
 import streamlit as st
 
-st.title("TEST OK")
-st.write("Streamlit çalışıyor mu kontrol")
+st.title("BIST ROBOT TEST")
+st.write("App çalışıyor")
