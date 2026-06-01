@@ -1,17 +1,4 @@
 import streamlit as st
-import pandas as pd
 
-st.title("📊 BIST ROBOT (OFFLINE TEST)")
-
-# INTERNET BAĞIMLI OLMAYAN TEST VERİ
-data = {
-    "Hisse": ["THYAO", "ASELS", "TUPRS", "ASTOR"],
-    "Skor": [75, 55, 30, 85],
-    "Sinyal": ["🟢 AL", "🟡 BEKLE", "🔴 SAT", "🟢 AL"]
-}
-
-df = pd.DataFrame(data)
-
-st.dataframe(df)
-
-st.success("App çalışıyor - Streamlit OK")
+st.title("TEST OK")
+st.write("Streamlit çalışıyor mu kontrol")
