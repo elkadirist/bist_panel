@@ -1,0 +1,42 @@
+import streamlit as st
+import yfinance as yf
+import pandas as pd
+import ta
+
+st.title("📊 BIST AL/SAT ROBOTU")
+
+stocks = ["THYAO.IS","ASELS.IS","TUPRS.IS","ASTOR.IS"]
+
+def score(df):
+    close = df["Close"]
+    ema20 = close.ewm(span=20).mean()
+    ema50 = close.ewm(span=50).mean()
+    rsi = ta.momentum.RSIIndicator(close).rsi()
+
+    s = 0
+    if ema20.iloc[-1] > ema50.iloc[-1]:
+        s += 40
+    if 40 < rsi.iloc[-1] < 70:
+        s += 30
+    return s
+
+results = []
+
+for s in stocks:
+    df = yf.download(s, period="6mo")
+
+    if df.empty:
+        continue
+
+    sc = score(df)
+
+    signal = "SAT"
+    if sc > 70:
+        signal = "🟢 AL"
+    elif sc > 50:
+        signal = "🟡 BEKLE"
+
+    results.append([s, sc, signal])
+
+df2 = pd.DataFrame(results, columns=["Hisse","Skor","Sinyal"])
+st.dataframe(df2)
