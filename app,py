@@ -1,42 +1,51 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import ta
 
-st.title("📊 BIST AL/SAT ROBOTU")
+st.title("📊 BIST AL/SAT ROBOTU (STABLE)")
 
 stocks = ["THYAO.IS","ASELS.IS","TUPRS.IS","ASTOR.IS"]
 
-def score(df):
-    close = df["Close"]
-    ema20 = close.ewm(span=20).mean()
-    ema50 = close.ewm(span=50).mean()
-    rsi = ta.momentum.RSIIndicator(close).rsi()
+def simple_score(df):
+    try:
+        close = df["Close"]
 
-    s = 0
-    if ema20.iloc[-1] > ema50.iloc[-1]:
-        s += 40
-    if 40 < rsi.iloc[-1] < 70:
-        s += 30
-    return s
+        ema20 = close.ewm(span=20).mean()
+        ema50 = close.ewm(span=50).mean()
+
+        score = 0
+
+        if ema20.iloc[-1] > ema50.iloc[-1]:
+            score += 50
+
+        return score
+    except:
+        return 0
+
 
 results = []
 
 for s in stocks:
-    df = yf.download(s, period="6mo")
+    try:
+        df = yf.download(s, period="6mo")
 
-    if df.empty:
+        if df is None or df.empty:
+            continue
+
+        sc = simple_score(df)
+
+        if sc > 40:
+            signal = "🟢 AL"
+        else:
+            signal = "🔴 SAT"
+
+        results.append([s, sc, signal])
+
+    except:
         continue
 
-    sc = score(df)
 
-    signal = "SAT"
-    if sc > 70:
-        signal = "🟢 AL"
-    elif sc > 50:
-        signal = "🟡 BEKLE"
-
-    results.append([s, sc, signal])
-
-df2 = pd.DataFrame(results, columns=["Hisse","Skor","Sinyal"])
-st.dataframe(df2)
+if len(results) == 0:
+    st.error("Veri gelmiyor - Streamlit Cloud yfinance blokluyor olabilir")
+else:
+    st.dataframe(pd.DataFrame(results, columns=["Hisse","Skor","Sinyal"]))
